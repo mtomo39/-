@@ -14,7 +14,7 @@ namespace ファイル分割
     {
         static void Main(string[] args)
         {
-            var enc = Encoding.GetEncoding("shift_jis");
+            var enc = Encoding.GetEncoding(ConfigurationManager.AppSettings["encoding"]);
             var parentDir = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), DateTime.Now.ToString("yyyy-MM-dd_HHmmss"));
 
             var startCol = int.Parse(ConfigurationManager.AppSettings["keyCodeStartCol"]);
