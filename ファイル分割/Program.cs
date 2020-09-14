@@ -14,25 +14,40 @@ namespace ファイル分割
     {
         static void Main(string[] args)
         {
-            var enc = Encoding.GetEncoding(ConfigurationManager.AppSettings["encoding"]);
-            var parentDir = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), DateTime.Now.ToString("yyyy-MM-dd_HHmmss"));
-            Directory.CreateDirectory(parentDir);
-
-            var startCol = int.Parse(ConfigurationManager.AppSettings["keyCodeStartCol"]);
-            var len = int.Parse(ConfigurationManager.AppSettings["keyCodeLength"]);
-            var outputFileName = ConfigurationManager.AppSettings["outputFileName"];
-
-
-            var allLines = File.ReadAllLines(args[0], enc);
-
-            var keyCodes = allLines.GroupBy(line => line.Substring(startCol - 1, len).Trim());
-            
-            foreach(var keyCode in keyCodes)
+            var exitCode = 0;
+            try
             {
-                var filePath = Path.Combine(parentDir, string.Format(outputFileName,keyCode.Key));
+                var enc = Encoding.GetEncoding(ConfigurationManager.AppSettings["encoding"]);
+                var parentDir = Path.Combine(Path.GetDirectoryName(args[0]), DateTime.Now.ToString("yyyy-MM-dd_HHmmss"));
+                Directory.CreateDirectory(parentDir);
 
-                var lines = allLines.Where(line => line.Substring(startCol - 1, len).Trim() == keyCode.Key);
-                File.AppendAllLines(filePath, lines, enc);
+                var startCol = int.Parse(ConfigurationManager.AppSettings["keyCodeStartCol"]);
+                var len = int.Parse(ConfigurationManager.AppSettings["keyCodeLength"]);
+                var outputFileNameWithPlaceHolderOfKeyCode = ConfigurationManager.AppSettings["outputFileNameWithPlaceHolderOfKeyCode"];
+
+
+                var allLines = File.ReadAllLines(args[0], enc);
+
+                var keyCodes = allLines.GroupBy(line => line.Substring(startCol - 1, len).Trim());
+
+                foreach (var keyCode in keyCodes)
+                {
+                    var filePath = Path.Combine(parentDir, string.Format(outputFileNameWithPlaceHolderOfKeyCode, keyCode.Key));
+
+                    var lines = allLines.Where(line => line.Substring(startCol - 1, len).Trim() == keyCode.Key);
+                    File.AppendAllLines(filePath, lines, enc);
+                }
+
+            }
+            catch(Exception ex)
+            {
+                exitCode = -1;
+                Console.WriteLine(ex.ToString());
+                Debug.WriteLine(ex.ToString());
+            }
+            finally
+            {
+                Environment.Exit(exitCode);
             }
 
         }
