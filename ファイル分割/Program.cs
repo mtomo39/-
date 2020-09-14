@@ -16,10 +16,11 @@ namespace ファイル分割
         {
             var enc = Encoding.GetEncoding(ConfigurationManager.AppSettings["encoding"]);
             var parentDir = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), DateTime.Now.ToString("yyyy-MM-dd_HHmmss"));
+            Directory.CreateDirectory(parentDir);
 
             var startCol = int.Parse(ConfigurationManager.AppSettings["keyCodeStartCol"]);
             var len = int.Parse(ConfigurationManager.AppSettings["keyCodeLength"]);
-            var fileName = ConfigurationManager.AppSettings["outputFileName"];
+            var outputFileName = ConfigurationManager.AppSettings["outputFileName"];
 
 
             var allLines = File.ReadAllLines(args[0], enc);
@@ -28,9 +29,7 @@ namespace ファイル分割
             
             foreach(var keyCode in keyCodes)
             {
-                var dir = Path.Combine(parentDir, keyCode.Key);
-                Directory.CreateDirectory(dir);
-                var filePath = Path.Combine(dir, fileName);
+                var filePath = Path.Combine(parentDir, string.Format(outputFileName,keyCode.Key));
 
                 var lines = allLines.Where(line => line.Substring(startCol - 1, len).Trim() == keyCode.Key);
                 File.AppendAllLines(filePath, lines, enc);
